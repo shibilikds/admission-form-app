@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admission Form - Al Answar Da'wa Academy</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #ecfeff 100%);
+      color: #1e293b;
+      scroll-behavior: smooth;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb {
+      background: #0d9488;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #0f766e; }
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    #formContainer {
+      background: linear-gradient(180deg, #ffffff, #f9fafb);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      box-shadow: 0 8px 20px rgba(13, 148, 136, 0.08);
+    }
+    input, textarea, select {
+      transition: all 0.3s ease;
+      background-color: #fff;
+      border: 1px solid #d1d5db;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+    }
+    button {
+      font-weight: 600;
+      transition: all 0.25s ease-in-out;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:active { transform: scale(0.97); }
+    #downloadPDF,
+    [type="submit"] {
+      background: linear-gradient(90deg, #0d9488, #14b8a6);
+    }
+    #downloadPDF:hover,
+    [type="submit"]:hover {
+      background: linear-gradient(90deg, #0f766e, #0d9488);
+      box-shadow: 0 8px 20px rgba(13, 148, 136, 0.25);
+    }
+    footer {
+      position: relative;
+      overflow: hidden;
+      background: #0d9488;
+      color: white;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(45, 212, 191, 0.2), transparent 70%);
+      animation: pulse-bg 8s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-bg {
+      0% { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1.2); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+  <header class="sticky-header">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="https://cdn-icons-png.flaticon.com/512/906/906175.png" alt="Logo" class="w-10 h-10" />
+        <h1 class="text-xl font-bold text-teal-700">Al Answar Da'wa Academy</h1>
+      </div>
+      <nav class="hidden md:flex space-x-8">
+        <a href="index.html" class="text-gray-600 hover:text-teal-700 transition">Home</a>
+        <a href="#about" class="text-gray-600 hover:text-teal-700 transition">About</a>
+        <a href="#form" class="text-gray-600 hover:text-teal-700 transition">Admission</a>
+        <a href="#contact" class="text-gray-600 hover:text-teal-700 transition">Contact</a>
+      </nav>
+      <button id="menuBtn" class="md:hidden text-gray-700 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-teal-50 border-t border-teal-100">
+      <a href="index.html" class="block px-6 py-3 text-gray-700 hover:bg-teal-100">Home</a>
+      <a href="#about" class="block px-6 py-3 text-gray-700 hover:bg-teal-100">About</a>
+      <a href="#form" class="block px-6 py-3 text-gray-700 hover:bg-teal-100">Admission</a>
+      <a href="#contact" class="block px-6 py-3 text-gray-700 hover:bg-teal-100">Contact</a>
+    </div>
+  </header>
+
+  <main class="flex-grow p-4 flex items-center justify-center">
+    <div class="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden" id="formContainer">
+      <div class="bg-teal-700 text-white p-6 md:p-8 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold">Al Answar Da'wa Academy</h1>
+        <p class="mt-2 text-teal-200 text-lg">Admissions Open!</p>
+      </div>
+
+      <div id="about" class="p-6 md:p-8 grid md:grid-cols-2 gap-8 items-start">
+        <div class="prose max-w-none">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4 border-b-2 border-teal-500 pb-2">Why Choose Us?</h2>
+          <ul class="list-none space-y-3 text-gray-700">
+            <li><span class="text-teal-600 mr-2">✔</span> Syllabus of Jamiathul Hind Al Islamiyya.</li>
+            <li><span class="text-teal-600 mr-2">✔</span> Excellent and experienced academic body.</li>
+            <li><span class="text-teal-600 mr-2">✔</span> Holistic training and mentorship from Ustads.</li>
+            <li><span class="text-teal-600 mr-2">✔</span> Nurturing environment for creative skills.</li>
+            <li><span class="text-teal-600 mr-2">✔</span> Opportunities for higher studies in top universities.</li>
+          </ul>
+          <div class="mt-6">
+            <p class="font-semibold text-gray-700">Principal:</p>
+            <p class="text-gray-600">Muhammed Basheer Kamil Saqafi Karakkunnu</p>
+          </div>
+          <div id="contact" class="mt-6 border-t pt-6">
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">For more information, contact:</h3>
+            <p class="text-gray-600"><strong>Email:</strong> alanswarpandikkad@gmail.com</p>
+            <p class="text-gray-600 mt-2"><strong>Phone:</strong></p>
+            <ul class="list-none space-y-1 text-gray-600 mt-1">
+              <li>+91 95263 15849</li>
+              <li>+91 90480 19566</li>
+              <li>+91 80785 65815</li>
+            </ul>
+          </div>
+        </div>
+
+        <div id="form" class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Application Form</h2>
+          <form id="admissionForm" class="space-y-5" action="/submit-form" method="POST">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+              <input type="text" id="name" name="studentName" required class="mt-1 block w-full px-3 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="place" class="block text-sm font-medium text-gray-700">Place</label>
+              <input type="text" id="place" name="place" required class="mt-1 block w-full px-3 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+              <textarea id="address" name="address" rows="3" required class="mt-1 block w-full px-3 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm"></textarea>
+            </div>
+            <div>
+              <label for="whatsapp" class="block text-sm font-medium text-gray-700">WhatsApp Number</label>
+              <input type="tel" id="whatsapp" name="whatsapp" required class="mt-1 block w-full px-3 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+            </div>
+            <div>
+              <label for="class" class="block text-sm font-medium text-gray-700">Class you wish to join</label>
+              <select id="class" name="classToJoin" required class="mt-1 block w-full pl-3 pr-10 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                <option value="" disabled selected>Select a class</option>
+                <option value="junior">Junior (For 8th Standard)</option>
+                <option value="senior">Senior (For SSLC High Achievers)</option>
+              </select>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 mt-4">
+              <button type="submit" class="flex-1 py-3 px-4 rounded-md text-white bg-teal-600 hover:bg-teal-700 focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
+                Submit Application
+              </button>
+              <button type="button" id="downloadPDF" class="flex-1 py-3 px-4 rounded-md text-white bg-gray-700 hover:bg-gray-800 focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                Download as PDF
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="py-6 mt-10 text-center">
+    <p class="text-sm">&copy; 2025 Al Answar Da'wa Academy. All rights reserved.</p>
+  </footer>
+
+  <script>
+  // ===== Mobile Menu Toggle =====
+  const menuBtn = document.getElementById('menuBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  if (menuBtn && mobileMenu) {
+    menuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+
+  // ===== PDF Download (Force Desktop Layout) =====
+  document.getElementById("downloadPDF").addEventListener("click", async () => {
+    const formContainer = document.getElementById("formContainer");
+    const { jsPDF } = window.jspdf;
+    const btn = document.getElementById("downloadPDF");
+    const originalText = btn.innerText;
+    btn.innerText = "Generating PDF...";
+    btn.disabled = true;
+    const originalWidth = formContainer.style.width;
+    const originalMaxWidth = formContainer.style.maxWidth;
+    const originalTransform = formContainer.style.transform;
+
+    try {
+      formContainer.style.width = "1024px";
+      formContainer.style.maxWidth = "1024px";
+      formContainer.style.transform = "scale(1)";
+      formContainer.style.margin = "0 auto";
+      await new Promise((r) => setTimeout(r, 150));
+      const canvas = await html2canvas(formContainer, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1024,
+        windowHeight: formContainer.scrollHeight
+      });
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.setFontSize(10);
+      pdf.setTextColor(120);
+      pdf.text(
+        "© 2025 Al Answar Da'wa Academy | Generated by Online Admission Form",
+        pageWidth / 2,
+        pageHeight - 8,
+        { align: "center" }
+      );
+      pdf.save("Admission_Form.pdf");
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      alert("❌ Something went wrong while generating the PDF.");
+    } finally {
+      formContainer.style.width = originalWidth;
+      formContainer.style.maxWidth = originalMaxWidth;
+      formContainer.style.transform = originalTransform;
+      btn.innerText = originalText;
+      btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
