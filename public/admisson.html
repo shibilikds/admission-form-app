@@ -55,6 +55,11 @@
     }
     button:hover { transform: translateY(-2px); }
     button:active { transform: scale(0.97); }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
     #downloadPDF,
     [type="submit"] {
       background: linear-gradient(90deg, #0d9488, #14b8a6);
@@ -83,6 +88,34 @@
     @keyframes pulse-bg {
       0% { transform: scale(1); opacity: 0.7; }
       100% { transform: scale(1.2); opacity: 1; }
+    }
+    .success-message {
+      background: #d1fae5;
+      border: 2px solid #10b981;
+      color: #065f46;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      animation: slideDown 0.3s ease-out;
+    }
+    .error-message {
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      color: #991b1b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -151,7 +184,11 @@
 
         <div id="form" class="bg-gray-50 p-6 rounded-lg border border-gray-200">
           <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Application Form</h2>
-          <form id="admissionForm" class="space-y-5" action="/submit-form" method="POST">
+          
+          <!-- Message Container -->
+          <div id="messageContainer"></div>
+          
+          <form id="admissionForm" class="space-y-5">
             <div>
               <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
               <input type="text" id="name" name="studentName" required class="mt-1 block w-full px-3 py-2 rounded-md focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
@@ -195,6 +232,9 @@
   </footer>
 
   <script>
+  // Backend API URL - മാറ്റേണ്ട URL ഇവിടെ
+  const API_URL = 'http://localhost:5000';
+
   // ===== Mobile Menu Toggle =====
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -202,6 +242,73 @@
     menuBtn.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
     });
+  }
+
+  // ===== Form Submission with Backend =====
+  document.getElementById('admissionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('[type="submit"]');
+    const originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Submitting...';
+    submitBtn.disabled = true;
+    
+    // Get form data
+    const formData = {
+      studentName: document.getElementById('name').value,
+      place: document.getElementById('place').value,
+      address: document.getElementById('address').value,
+      whatsapp: document.getElementById('whatsapp').value,
+      classToJoin: document.getElementById('class').value
+    };
+    
+    try {
+      const response = await fetch(`${API_URL}/submit-form`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Success message കാണിക്കുക
+        showMessage('success', `✅ Application submitted successfully! Your Application ID: ${result.data.applicationId}`);
+        
+        // Form reset ചെയ്യുക
+        document.getElementById('admissionForm').reset();
+      } else {
+        showMessage('error', `❌ ${result.message || 'Error submitting application'}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showMessage('error', '❌ Unable to connect to server. Please try again later.');
+    } finally {
+      submitBtn.innerText = originalText;
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ===== Message Display Function =====
+  function showMessage(type, message) {
+    const messageContainer = document.getElementById('messageContainer');
+    const messageClass = type === 'success' ? 'success-message' : 'error-message';
+    
+    messageContainer.innerHTML = `
+      <div class="${messageClass}">
+        ${message}
+      </div>
+    `;
+    
+    // 5 സെക്കന്റ് കഴിഞ്ഞ് message മായ്ക്കുക
+    setTimeout(() => {
+      messageContainer.innerHTML = '';
+    }, 5000);
+    
+    // മുകളിലേക്ക് scroll ചെയ്യുക
+    document.getElementById('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   // ===== PDF Download (Force Desktop Layout) =====
